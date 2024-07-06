@@ -1,6 +1,8 @@
 import BasicRoutes from '../abstracts/routes';
 import UserController from '../controller/user';
 import { UserService } from '../services/userService';
+import { authenticateToken } from '../utils/jwt';
+
 
 export default class UserRoute extends BasicRoutes {
   constructor() {
@@ -17,6 +19,7 @@ export default class UserRoute extends BasicRoutes {
 
     this.router.post('/register', controller.createUser.bind(controller));
     this.router.post('/login', controller.login.bind(controller));
+    this.router.get('/dummy-data', authenticateToken, controller.getDummyData.bind(controller))
   }
 
 }
