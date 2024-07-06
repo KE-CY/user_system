@@ -1,7 +1,7 @@
 import db from "../models/registry";
 import bcrypt from 'bcrypt';
 import { CustomError } from "../middlerwares/errorHandler";
-import { generateTokens } from "../utils/jwt";
+import { generateTokens, verifyAccessToken } from "../utils/jwt";
 
 export class UserService {
   async createUser(username: string, password: string, avatar: string) {
@@ -34,7 +34,7 @@ export class UserService {
     }
 
     const userPassword = user.password;
-    if (!bcrypt.compareSync(password, userPassword)){
+    if (!bcrypt.compareSync(password, userPassword)) {
       throw new CustomError(204, '密碼錯誤')
     }
   }
@@ -44,4 +44,30 @@ export class UserService {
     return { accessToken, refreshToken };
   }
 
+  async validateUsername(username: string) {
+    const condition = {
+      username,
+      isActive: true,
+      disabled: false
+    };
+    const user = await db.User.findOne(condition).lean().exec();
+
+    if (!user) {
+      throw new CustomError(404, 'user error');
+    }
+  }
+
+  async updatePassword(username: string, password: string) {
+    const condition = {
+      username,
+      isActive: true,
+      disabled: false
+    }
+
+    const update = {
+      $set: { password: bcrypt.hashSync(password, 5) },
+    }
+
+    return await db.User.updateOne(condition, update).exec()
+  }
 }

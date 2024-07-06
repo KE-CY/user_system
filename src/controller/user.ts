@@ -49,9 +49,29 @@ class UserController {
   }
 
   async getDummyData(req: Request, res: Response, next: NextFunction) {
-    return res.status(200).json({ 
+    return res.status(200).json({
       msg: "You get me."
-     });
+    });
+  }
+
+  async updatePassword(req: Request, res: Response, next: NextFunction) {
+    const username = (req as any).user.username;
+
+    const bodySchema = Joi.object({
+      password: Joi.string().required(),
+    }).options({ stripUnknown: true });
+
+    try {
+      await bodySchema.validateAsync(req.body);
+      const { password } = req.body;
+
+      await this.service.validateUsername(username);
+      await this.service.updatePassword(username, password);
+
+      return res.status(200).json("ok");
+    } catch (error) {
+      next(error);
+    }
   }
 
 }
