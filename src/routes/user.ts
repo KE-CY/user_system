@@ -16,6 +16,7 @@ export default class UserRoute extends BasicRoutes {
     );
 
     this.router.post('/register', controller.createUser.bind(controller));
+    this.router.post('/login', controller.login.bind(controller));
   }
 
 }

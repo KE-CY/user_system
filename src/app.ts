@@ -1,6 +1,9 @@
 import express from 'express';
 import connectDB from './config/db';
 import router from './routes/routes';
+import { handleError } from './middlerwares/errorHandler';
+import { Request, Response, NextFunction } from "express";
+
 
 
 export class App {
@@ -9,6 +12,7 @@ export class App {
     this.app.use(express.json());
     connectDB();
     this.setRoutes();
+    this.app.use(handleError);
   }
 
   private setRoutes(): void {

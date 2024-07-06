@@ -28,6 +28,26 @@ class UserController {
     }
   }
 
+  async login(req: Request, res: Response, next: NextFunction) {
+    const bodySchema = Joi.object({
+      username: Joi.string().required(),
+      password: Joi.string().required(),
+    }).options({ stripUnknown: true });
+
+    try {
+      await bodySchema.validateAsync(req.body);
+      const { username, password } = req.body;
+
+      await this.service.validateForLogin(username, password);
+
+      const { accessToken, refreshToken } = this.service.createToken(username);
+
+      return res.status(200).json({ accessToken, refreshToken });
+    } catch (error) {
+      next(error);
+    }
+  }
+
 }
 
 export default UserController;
