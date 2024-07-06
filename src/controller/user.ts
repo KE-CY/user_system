@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { UserService } from "../services/userService";
 import Joi, { ValidationError } from 'joi';
+import { generateTokens, verifyAccessToken } from "../utils/jwt";
 
 class UserController {
   public readonly service: UserService;
@@ -69,6 +70,29 @@ class UserController {
       await this.service.updatePassword(username, password);
 
       return res.status(200).json("ok");
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async validateRefreshToken(req: Request, res: Response, next: NextFunction) {
+    const bodySchema = Joi.object({
+      refreshToken: Joi.string().required(),
+    }).options({ stripUnknown: true });
+
+    try {
+      await bodySchema.validateAsync(req.body);
+      const { refreshToken } = req.body;
+
+      const payload = verifyAccessToken(refreshToken);
+
+      if (!payload) {
+        return res.status(401).json({ error: 'Invalid or expired refresh token' });
+      }
+
+      const tokens = generateTokens({ username: payload.username });
+
+      res.json(tokens);
     } catch (error) {
       next(error);
     }

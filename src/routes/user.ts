@@ -21,6 +21,7 @@ export default class UserRoute extends BasicRoutes {
     this.router.post('/login', controller.login.bind(controller));
     this.router.get('/dummy-data', authenticateToken, controller.getDummyData.bind(controller))
     this.router.post('/change-password', authenticateToken, controller.updatePassword.bind(controller));
+    this.router.post('/validate-refresh-token', controller.validateRefreshToken.bind(controller))
   }
 
 }
